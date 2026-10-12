@@ -1,0 +1,27 @@
+-- Foundation migration. Apply in your own Supabase project; no demo rows are inserted.
+create table public.workspaces (id uuid primary key default gen_random_uuid(), name text not null, owner_id uuid not null references auth.users(id), created_at timestamptz not null default now());
+create table public.workspace_members (workspace_id uuid references public.workspaces(id) on delete cascade, user_id uuid references auth.users(id) on delete cascade, role text not null check (role in ('admin','member')), primary key(workspace_id,user_id));
+create function public.can_access_workspace(target uuid) returns boolean language sql stable security definer set search_path=public as $$ select exists(select 1 from workspaces where id=target and owner_id=auth.uid()) or exists(select 1 from workspace_members where workspace_id=target and user_id=auth.uid()); $$;
+create table public.client_projects (id uuid primary key default gen_random_uuid(), workspace_id uuid not null references public.workspaces(id) on delete cascade, name text not null, description text, created_at timestamptz default now());
+create table public.opportunities (id uuid primary key default gen_random_uuid(), project_id uuid not null references public.client_projects(id) on delete cascade, reddit_url text, title text not null, community text, keyword text, status text not null default 'new' check(status in ('new','drafting','reviewed','archived')), discovered_at timestamptz default now());
+create table public.drafts (id uuid primary key default gen_random_uuid(), opportunity_id uuid not null references public.opportunities(id) on delete cascade, body text not null, author_id uuid references auth.users(id), updated_at timestamptz default now());
+create table public.rank_observations (id uuid primary key default gen_random_uuid(), opportunity_id uuid not null references public.opportunities(id) on delete cascade, position integer check(position>0), provider text not null, observed_at timestamptz not null, query text not null);
+alter table public.workspaces enable row level security;
+alter table public.workspace_members enable row level security;
+alter table public.client_projects enable row level security;
+alter table public.opportunities enable row level security;
+alter table public.drafts enable row level security;
+alter table public.rank_observations enable row level security;
+create policy workspace_read on public.workspaces for select to authenticated using(public.can_access_workspace(id));
+create policy workspace_create on public.workspaces for insert to authenticated with check(owner_id=auth.uid());
+create policy workspace_update on public.workspaces for update to authenticated using(owner_id=auth.uid()) with check(owner_id=auth.uid());
+create policy members_read on public.workspace_members for select to authenticated using(public.can_access_workspace(workspace_id));
+create policy members_manage on public.workspace_members for all to authenticated using(exists(select 1 from public.workspaces w where w.id=workspace_id and w.owner_id=auth.uid())) with check(exists(select 1 from public.workspaces w where w.id=workspace_id and w.owner_id=auth.uid()));
+create policy projects_access on public.client_projects for all to authenticated using(public.can_access_workspace(workspace_id)) with check(public.can_access_workspace(workspace_id));
+create policy opportunities_access on public.opportunities for all to authenticated using(exists(select 1 from public.client_projects p where p.id=project_id and public.can_access_workspace(p.workspace_id))) with check(exists(select 1 from public.client_projects p where p.id=project_id and public.can_access_workspace(p.workspace_id)));
+create policy drafts_access on public.drafts for all to authenticated using(exists(select 1 from public.opportunities o join public.client_projects p on p.id=o.project_id where o.id=opportunity_id and public.can_access_workspace(p.workspace_id))) with check(exists(select 1 from public.opportunities o join public.client_projects p on p.id=o.project_id where o.id=opportunity_id and public.can_access_workspace(p.workspace_id)));
+create policy rankings_read on public.rank_observations for select to authenticated using(exists(select 1 from public.opportunities o join public.client_projects p on p.id=o.project_id where o.id=opportunity_id and public.can_access_workspace(p.workspace_id)));
+create index projects_workspace_idx on public.client_projects(workspace_id);
+create index opportunities_project_idx on public.opportunities(project_id);
+create index drafts_opportunity_idx on public.drafts(opportunity_id);
+create index rankings_opportunity_idx on public.rank_observations(opportunity_id);

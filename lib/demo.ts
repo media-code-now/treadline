@@ -1,0 +1,8 @@
+export const projects=[{name:'All clients',color:'#a3e635'},{name:'Northstar',color:'#9175df'},{name:'Bloom',color:'#e69b70'},{name:'Forma',color:'#6aafa0'}];
+export const opportunities=[
+{id:1,client:'Northstar',community:'r/SaaS',title:'What’s actually working for onboarding new users in 2026?',excerpt:'Looking for practical ways to reduce drop-off after the first session. What has your team tried?',keyword:'user onboarding software',rank:3,score:94,comments:48,status:'New',age:'2h'},
+{id:2,client:'Bloom',community:'r/SkincareAddiction',title:'[Routine Help] A simple routine for sensitive skin?',excerpt:'There are so many options out there. I just want something gentle that I can stick with.',keyword:'best sensitive skin routine',rank:5,score:91,comments:126,status:'New',age:'4h'},
+{id:3,client:'Forma',community:'r/InteriorDesign',title:'Small home office setup — what would you change?',excerpt:'Trying to make this space more comfortable without taking over the entire living room.',keyword:'small home office ideas',rank:2,score:89,comments:64,status:'Drafting',age:'6h'},
+{id:4,client:'Northstar',community:'r/startups',title:'How are you collecting product feedback at an early stage?',excerpt:'We have our first 100 customers and need a better way to understand what they need.',keyword:'customer feedback tools',rank:8,score:86,comments:32,status:'New',age:'8h'},
+{id:5,client:'Bloom',community:'r/beauty',title:'Which moisturizer do you keep coming back to?',excerpt:'Interested in ingredients and experience, especially from people with dry skin.',keyword:'daily moisturizer dry skin',rank:12,score:82,comments:93,status:'Reviewed',age:'1d'}];
+export type Opportunity=typeof opportunities[number];
