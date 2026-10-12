@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "node --experimental-strip-types --test tests/projects.test.ts"
   },
   "keywords": [],
   "author": "",
@@ -29,5 +30,8 @@
     "@types/react": "^19.3.0",
     "tailwindcss": "^4.3.3",
     "typescript": "^7.0.2"
+  },
+  "engines": {
+    "node": ">=22.19.0"
   }
 }

@@ -15,3 +15,12 @@ No live Reddit discovery, Google/SERP tracking, AI generation, posting, schedule
 
 ## Supabase next phase
 Copy `.env.example` to `.env.local`, add your project URL and public anon key, and apply `supabase/schema.sql` in a fresh Supabase project. Never expose service-role keys. `lib/supabase.ts` returns null until configured; UI intentionally continues using demo data until authenticated CRUD is implemented. Schema includes workspaces, membership, client projects, opportunities, drafts, rank observations and row-level access policies. Client portal roles and invitation flows remain future work.
+
+## Phase 2 — Client Projects UI
+Scope confirmed UI-only. All project profiles and the chosen client are saved in browser-local storage; authentication, server enforcement, Supabase CRUD and cross-client database isolation verification remain deferred. The existing foundation SQL is unchanged and is not proof of production client isolation.
+
+The profile includes business name/URL/description, products/services, locations/language, brand spelling variations, competitors, keywords and sourced, manually reviewed business facts. Create and edit profiles, switch the workspace client, archive and restore projects. New projects start with no simulated results. Archiving hides a project from the active switcher and retains its data. Renaming retains the demo discussion and draft associations. Drafts show the corresponding business context and reviewed facts; modifying a fact or source clears its review checkbox.
+
+Validation: required business context, unique names, HTTP/HTTPS website URLs, and source URLs for reviewed facts. Lists accept commas or newlines. Blank keywords, competitors and facts are allowed with useful empty states. Browser storage errors are displayed without pretending persistence succeeded.
+
+Verification: Node 22.19+; `npm test` covers validation and list parsing. `npm run build` checks TypeScript and the static production export. Manual UI acceptance: create a project with all fields; switch to it; refresh and confirm selection/profile remain; edit its name; archive it and confirm it leaves the switcher; restore from Archived; add a fact and attempt review without a source to see validation; add a source and save; edit a sample opportunity and inspect its business context. Browser end-to-end QA has not been run in this environment.
