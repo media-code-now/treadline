@@ -7,7 +7,7 @@
     "dev": "next dev",
     "build": "next build",
     "typecheck": "tsc --noEmit",
-    "test": "node --experimental-strip-types --test tests/projects.test.ts"
+    "test": "node --experimental-strip-types --test tests/*.test.ts"
   },
   "keywords": [],
   "author": "",
